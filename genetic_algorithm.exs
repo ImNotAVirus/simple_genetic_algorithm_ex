@@ -79,7 +79,7 @@ defmodule GeneticAlgorithmAbc do
     tensor
     |> Nx.shape()
     |> elem(0)
-    |> (&{&1}).()
+    |> then(&{&1})
     |> Nx.random_uniform(0, 2)
   end
 
@@ -97,8 +97,8 @@ defmodule GeneticAlgorithmAbc do
       chromosome
       |> Nx.shape()
       |> elem(0)
-      |> Kernel.*(@mutation_rate)
-      |> Kernel.round()
+      |> then(&(&1 * @mutation_rate))
+      |> then(&round/1)
 
     mask = random_mask_max(chromosome, num_genes_mut)
     random_genes = random_chromosome()
@@ -118,8 +118,8 @@ defmodule GeneticAlgorithmAbc do
     tensor
     |> Nx.shape()
     |> elem(0)
-    |> (&Range.new(0, &1 - 1)).()
-    |> Enum.map(&if &1 < max_zeros, do: 0, else: 1)
+    |> then(&(0..(&1 - 1)))
+    |> Enum.map(&if(&1 < max_zeros, do: 0, else: 1))
     |> Enum.shuffle()
     |> Nx.tensor()
   end
@@ -127,7 +127,7 @@ end
 
 ## Run it
 
-max_generations = 5000
+max_generations = 1000
 num_parents_mating = 10
 
 initial_population = GeneticAlgorithmAbc.random_population()
@@ -148,7 +148,7 @@ Enum.reduce(1..max_generations, initial_population, fn i, population ->
   parents = GeneticAlgorithmAbc.select_mating_pool(population, fitness, num_parents_mating)
 
   # Generating next generation using crossover
-  num_offspring = population |> Nx.shape() |> elem(0) |> Kernel.-(num_parents_mating)
+  num_offspring = population |> Nx.shape() |> elem(0) |> then(&(&1 - num_parents_mating))
   offspring_crossover = GeneticAlgorithmAbc.crossover(parents, num_offspring)
 
   # Adding some variations to the offsrping using mutation
