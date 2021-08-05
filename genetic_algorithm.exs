@@ -127,7 +127,7 @@ end
 
 ## Run it
 
-max_generations = 1000
+max_generations = 5000
 num_parents_mating = 10
 
 initial_population = GeneticAlgorithmAbc.random_population()
