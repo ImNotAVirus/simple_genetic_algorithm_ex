@@ -140,8 +140,8 @@ Enum.reduce(1..max_generations, initial_population, fn i, population ->
   best_chromosome = population[best_chromosome_idx] |> Nx.to_flat_list()
 
   IO.puts(
-    "Generation #{i}: the best chromosome is #{inspect(best_chromosome)} "
-    <> "(fitness score: #{best_chromosome_fit})"
+    "Generation #{i}: the best chromosome is #{inspect(best_chromosome)} " <>
+      "(fitness score: #{best_chromosome_fit})"
   )
 
   # Selecting the best parents in the population for mating
