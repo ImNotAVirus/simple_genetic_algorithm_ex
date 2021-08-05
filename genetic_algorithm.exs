@@ -79,7 +79,7 @@ defmodule GeneticAlgorithmAbc do
     tensor
     |> Nx.shape()
     |> elem(0)
-    |> (&{&1}).()
+    |> then(&{&1})
     |> Nx.random_uniform(0, 2)
   end
 
@@ -118,8 +118,8 @@ defmodule GeneticAlgorithmAbc do
     tensor
     |> Nx.shape()
     |> elem(0)
-    |> (&Range.new(0, &1 - 1)).()
-    |> Enum.map(&if &1 < max_zeros, do: 0, else: 1)
+    |> then(&Range.new(0, &1 - 1))
+    |> Enum.map(&if(&1 < max_zeros, do: 0, else: 1))
     |> Enum.shuffle()
     |> Nx.tensor()
   end
