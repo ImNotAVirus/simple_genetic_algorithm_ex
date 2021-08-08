@@ -13,14 +13,14 @@ defmodule GeneticAlgorithmAbc do
   @num_genes 26
   @mutation_rate 0.1
 
-  @perfect_chromosome ?A..?Z |> Enum.to_list() |> Nx.tensor(type: {:u, 32})
+  @perfect_chromosome ?A..?Z |> Enum.to_list() |> Nx.tensor(type: {:u, 8})
 
   def random_population() do
-    Nx.random_uniform({@chromosomes_per_pop, @num_genes}, ?A, ?Z + 1, type: {:u, 32})
+    Nx.random_uniform({@chromosomes_per_pop, @num_genes}, ?A, ?Z + 1, type: {:u, 8})
   end
 
   def random_chromosome() do
-    Nx.random_uniform({@num_genes}, ?A, ?Z + 1, type: {:u, 32})
+    Nx.random_uniform({@num_genes}, ?A, ?Z + 1, type: {:u, 8})
   end
 
   def fit_population(population) do
@@ -31,18 +31,12 @@ defmodule GeneticAlgorithmAbc do
 
   def select_mating_pool(population, fitness, num_parents_mating) do
     fitness
-    |> Nx.to_flat_list()
-    |> Enum.with_index()
     # Sort by fitness score
-    |> Enum.sort_by(&elem(&1, 0), :desc)
+    |> Nx.argsort(direction: :desc)
     # Take the first num_parents_mating best scores
-    |> Enum.take(num_parents_mating)
-    # Keep only indexes
-    |> Enum.map(&elem(&1, 1))
+    |> Nx.slice_axis(0, num_parents_mating, 0)
     # Get chromosomes by index
-    |> Enum.map(&population[&1])
-    # Joint the list of tensors
-    |> Nx.stack()
+    |> then(&Nx.take(population, &1))
   end
 
   def crossover(parents, num_offspring) do
