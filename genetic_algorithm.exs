@@ -16,17 +16,18 @@ defmodule GeneticAlgorithmAbc do
   @perfect_chromosome ?A..?Z |> Enum.to_list() |> Nx.tensor(type: {:u, 8})
 
   def random_population() do
-    Nx.random_uniform({@chromosomes_per_pop, @num_genes}, ?A, ?Z + 1, type: {:u, 8})
+    shape = {@chromosomes_per_pop, @num_genes}
+    Nx.random_uniform(shape, ?A, ?Z + 1, names: [:chromosome, :gene], type: {:u, 8})
   end
 
   def random_chromosome() do
-    Nx.random_uniform({@num_genes}, ?A, ?Z + 1, type: {:u, 8})
+    Nx.random_uniform({@num_genes}, ?A, ?Z + 1, names: [:gene], type: {:u, 8})
   end
 
   def fit_population(population) do
     population
     |> Nx.equal(@perfect_chromosome)
-    |> Nx.sum(axes: [1])
+    |> Nx.sum(axes: [:gene])
   end
 
   def select_mating_pool(population, fitness, num_parents_mating) do
@@ -34,7 +35,7 @@ defmodule GeneticAlgorithmAbc do
     # Sort by fitness score
     |> Nx.argsort(direction: :desc)
     # Take the first num_parents_mating best scores
-    |> Nx.slice_axis(0, num_parents_mating, 0)
+    |> Nx.slice_axis(0, num_parents_mating, :chromosome)
     # Get chromosomes by index
     |> then(&Nx.take(population, &1))
   end
